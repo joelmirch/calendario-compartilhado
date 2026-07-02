@@ -1,3 +1,6 @@
+
+
+Index · HTML
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -29,7 +32,7 @@
   .nav button:active{background:rgba(255,255,255,.3)}
   .nav-month{font-size:17px;font-weight:600;text-transform:capitalize;text-align:center;flex:1}
   .nav-year{font-size:12px;opacity:.8;font-weight:400}
-
+ 
   .weekdays{display:grid;grid-template-columns:repeat(7,1fr);padding:8px 6px 2px;gap:2px}
   .weekdays div{text-align:center;font-size:11px;color:var(--muted);font-weight:600;text-transform:uppercase}
   .grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;padding:2px 6px 6px}
@@ -44,7 +47,7 @@
   .chips{display:flex;flex-direction:column;gap:2px;padding:0 1px}
   .chip{font-size:8.5px;font-weight:700;color:#fff;border-radius:4px;padding:1px 3px;line-height:1.3;
         white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:.2px}
-
+ 
   .day-panel{padding:8px 16px 20px}
   .day-head{display:flex;align-items:baseline;justify-content:space-between;margin:6px 2px 14px}
   .day-head h2{margin:0;font-size:16px;font-weight:700;text-transform:capitalize}
@@ -59,7 +62,7 @@
   .slot-empty{font-size:13px;color:var(--muted);padding:6px 0}
   .addbtn{background:var(--brand-soft);color:var(--brand);border:none;border-radius:9px;padding:9px 12px;font-size:13px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:6px}
   .addbtn:active{opacity:.8}
-
+ 
   .modal-bg{position:fixed;inset:0;background:rgba(20,28,34,.5);z-index:60;display:none;align-items:flex-end;backdrop-filter:blur(2px)}
   .modal-bg.on{display:flex}
   .modal{background:var(--bg);width:100%;max-width:520px;margin:0 auto;border-radius:20px 20px 0 0;
@@ -76,7 +79,7 @@
   .free input:focus{outline:none;border-color:var(--brand)}
   .free button{padding:0 18px;border-radius:11px;border:none;background:var(--brand);color:#fff;font-weight:700;font-size:14px;cursor:pointer}
   .divider{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin:4px 0 10px;font-weight:600}
-
+ 
   .setup{position:fixed;inset:0;background:var(--bg);z-index:100;padding:26px 20px;overflow-y:auto;display:none}
   .setup.on{display:block}
   .setup h2{font-size:20px;margin:0 0 6px}
@@ -88,7 +91,7 @@
 </style>
 </head>
 <body>
-
+ 
 <header>
   <div class="h-top">
     <div class="h-title">Nosso Calendário</div>
@@ -100,12 +103,12 @@
     <button id="nextM">&rsaquo;</button>
   </div>
 </header>
-
+ 
 <div class="weekdays">
   <div>Dom</div><div>Seg</div><div>Ter</div><div>Qua</div><div>Qui</div><div>Sex</div><div>Sáb</div>
 </div>
 <div class="grid" id="grid"></div>
-
+ 
 <div class="day-panel">
   <div class="day-head">
     <h2 id="dayTitle">—</h2>
@@ -113,7 +116,7 @@
   </div>
   <div id="shifts"></div>
 </div>
-
+ 
 <div class="modal-bg" id="modalBg">
   <div class="modal">
     <div class="grab"></div>
@@ -128,7 +131,7 @@
     </div>
   </div>
 </div>
-
+ 
 <div class="setup" id="setup">
   <h2>Configuração inicial</h2>
   <p>Cole a configuração do seu projeto Firebase para sincronizar com sua esposa. Só uma vez.</p>
@@ -138,12 +141,12 @@
   <button class="btn btn-primary" id="cfgSave">Ativar sincronização</button>
   <p style="margin-top:14px">Sua esposa abre o mesmo link e cola a <b>mesma</b> configuração no celular dela.</p>
 </div>
-
+ 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getFirestore, collection, onSnapshot, doc, setDoc }
   from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-
+ 
 const LOCAIS = [
   {nome:'HNSC',     cor:'#c0392b'},
   {nome:'HCPA',     cor:'#2e7d4f'},
@@ -158,27 +161,27 @@ const LOCAIS = [
   {nome:'Carolina', cor:'#7b9e4e'},
 ];
 function corDe(nome){ const l=LOCAIS.find(x=>x.nome.toLowerCase()===(nome||'').toLowerCase()); return l?l.cor:'#556065'; }
-
+ 
 const SHIFTS=[
   {id:'manha', nome:'Manhã', ic:'☀'},
   {id:'tarde', nome:'Tarde', ic:'⛅'},
   {id:'noite', nome:'Noite', ic:'🌙'},
 ];
-
+ 
 let days={};
 let viewDate=new Date();
 let selKey=ymd(new Date());
 let db=null, useCloud=false;
 let modalShift=null;
-
+ 
 const MONTHS=['janeiro','fevereiro','março','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'];
 const WD=['Domingo','Segunda','Terça','Quarta','Quinta','Sexta','Sábado'];
-
+ 
 function ymd(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
 function parseKey(k){const[y,m,d]=k.split('-').map(Number);return new Date(y,m-1,d);}
 function esc(s){return (s||'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
 function dayData(k){ if(!days[k]) days[k]={manha:[],tarde:[],noite:[]}; return days[k]; }
-
+ 
 function saveLocal(){ if(!useCloud) localStorage.setItem('cal_days', JSON.stringify(days)); }
 function loadLocal(){ try{days=JSON.parse(localStorage.getItem('cal_days')||'{}');}catch(e){days={};} }
 async function persistDay(k){
@@ -186,7 +189,7 @@ async function persistDay(k){
   if(useCloud){ try{ await setDoc(doc(db,'dias',k), data); }catch(e){ setSync('err'); } }
   else saveLocal();
 }
-
+ 
 function setSync(s){
   const dot=document.getElementById('syncDot'), txt=document.getElementById('syncTxt');
   dot.className='dot '+(s==='ok'?'':s);
@@ -202,7 +205,7 @@ const FIREBASE_CONFIG = {
   messagingSenderId: "79661063369",
   appId: "1:79661063369:web:bab303f2c58ded4ef94118"
 };
-
+ 
 function initFirebase(){
   let cfg=FIREBASE_CONFIG;
   const raw=localStorage.getItem('cal_fbcfg');
@@ -216,7 +219,7 @@ function initFirebase(){
     }, err=> setSync('err'));
   }catch(e){ setSync('err'); loadLocal(); renderAll(); }
 }
-
+ 
 function renderCalendar(){
   const y=viewDate.getFullYear(), m=viewDate.getMonth();
   document.getElementById('mLabel').textContent=MONTHS[m];
@@ -230,7 +233,7 @@ function renderCalendar(){
   for(let i=start-1;i>=0;i--) cells.push({d:prev-i,dim:true,mo:m-1,yr:y});
   for(let d=1;d<=dim;d++) cells.push({d,dim:false,mo:m,yr:y});
   while(cells.length%7!==0) cells.push({d:cells.length-start-dim+1,dim:true,mo:m+1,yr:y});
-
+ 
   cells.forEach(c=>{
     const dd=new Date(c.yr,c.mo,c.d), key=ymd(dd);
     const cell=document.createElement('div');
@@ -254,7 +257,7 @@ function renderCalendar(){
     grid.appendChild(cell);
   });
 }
-
+ 
 function renderDay(){
   const dd=parseKey(selKey);
   document.getElementById('dayTitle').textContent=WD[dd.getDay()]+', '+dd.getDate()+' '+MONTHS[dd.getMonth()];
@@ -281,7 +284,7 @@ function renderDay(){
     dayData(selKey)[s].splice(i,1); persistDay(selKey); renderAll();
   });
 }
-
+ 
 function openModal(shiftId){
   modalShift=shiftId;
   const sh=SHIFTS.find(s=>s.id===shiftId);
@@ -303,15 +306,15 @@ function addValue(v){
   dayData(selKey)[modalShift].push(v);
   persistDay(selKey); closeModal(); renderAll();
 }
-
+ 
 function renderAll(){ renderCalendar(); renderDay(); }
-
+ 
 document.getElementById('prevM').onclick=()=>{viewDate.setMonth(viewDate.getMonth()-1);renderCalendar();};
 document.getElementById('nextM').onclick=()=>{viewDate.setMonth(viewDate.getMonth()+1);renderCalendar();};
 document.getElementById('modalBg').onclick=e=>{if(e.target.id==='modalBg')closeModal();};
 document.getElementById('freeAdd').onclick=()=>addValue(document.getElementById('freeInput').value);
 document.getElementById('freeInput').addEventListener('keydown',e=>{if(e.key==='Enter')addValue(e.target.value);});
-
+ 
 let pressT;
 const sb=document.getElementById('syncBtn');
 sb.addEventListener('dblclick',()=>document.getElementById('setup').classList.add('on'));
@@ -324,9 +327,10 @@ document.getElementById('cfgSave').onclick=()=>{
     localStorage.setItem('cal_fbcfg',JSON.stringify(cfg)); location.reload();
   }catch(e){ alert('Configuração inválida. Cole o objeto JSON completo do Firebase.'); }
 };
-
+ 
 initFirebase();
 // A config já vem embutida; a tela de setup fica disponível só via duplo-clique no status.
 </script>
 </body>
 </html>
+ 
